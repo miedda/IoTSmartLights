@@ -1,6 +1,3 @@
-// Useful links:
-// - https://stackoverflow.com/questions/55027338/implementing-coap-protocol-on-node-js
-
 const startTime = Date.now();
 const coap = require('coap');
 const server = coap.createServer({type: 'udp6'});
