@@ -1,8 +1,10 @@
 // This file defines a smart light that can be turned on, off or toggled via a coap interface
-
+require('dotenv').config()
 const coap = require('coap');
 const server = coap.createServer({type: 'udp6'});
 require('./util');
+
+const PORT = parseInt(process.env.LIGHT_PORT);
 
 class Light {
     constructor(id) {
@@ -50,29 +52,19 @@ let light = new Light(0);
 debugLog(`New light: ${light.toString()}`);
 
 server.on('request', (req, res) => {
-    debugLog(`Request URL: ${req.url}`);
-    debugLog(`Request METHOD: ${req.method}`);
+    debugLog(`new request: ${req.method} ${req.url}`);
 
     if (req.method == 'POST') {
         handlePOST(req, res);
     }
     else {
-        // console.log("GET");
         handleGET(req, res);
     }
 });
 
 function handlePOST(req, res){
     const path = req.url.split('/');
-    debugLog(path);
-    if (path[1] != "light") {
-        debugLog(`Request for other device filtered (url: ${req.url})`);
-        res.code = '4.04';
-        res.end('not found');
-        return;
-    }
-
-    switch(path[2]){
+    switch(path[1]){
         case "on":
             light.on();
             res.code = '2.03';
@@ -98,15 +90,7 @@ function handlePOST(req, res){
 
 function handleGET(req, res){
     const path = req.url.split('/');
-    debugLog(path);
-    if (path[1] != "light") {
-        debugLog(`Request for other device filtered (url: ${req.url})`);
-        res.code = '4.04';
-        res.end('not found');
-        return;
-    }
-
-    switch(path[2]){
+    switch(path[1]){
         case "status":
             debugLog('205: Ok');
             res.code = '2.05';
@@ -120,6 +104,6 @@ function handleGET(req, res){
     }
 }
 
-server.listen(() => {
-    debugLog(`Server started`);
+server.listen(PORT, () => {
+    debugLog(`Server started on port ${PORT}`); 
 });

@@ -1,3 +1,4 @@
+require('dotenv').config()
 const coap = require('coap');
 
 test_light();
@@ -5,30 +6,35 @@ test_switch();
 
 // Tests for light
 async function test_light(){
-    request({testname:'/light/on', pathname: '/light/on', method: 'post'});
-    request({testname:'/light/off', pathname: '/light/off', method: 'post'});
-    request({testname:'/light/toggle', pathname: '/light/toggle', method: 'post'});
-    request({testname:'/light/incorrect', pathname: '/light/incorrect', method: 'post'});
-    request({testname:'/light/incorrect', pathname: '/light/incorrect', method: 'get'});
-    request({testname:'/light/status', pathname: '/light/status', method: 'post'});
-    request({testname:'/light/status', pathname: '/light/status', method: 'get'});
+    port = parseInt(process.env.LIGHT_PORT);
+    request({testname:'Light Test 1', pathname: '/on', method: 'post', port: port});
+    request({testname:'Light Test 2', pathname: '/off', method: 'post', port: port});
+    request({testname:'Light Test 3', pathname: '/toggle', method: 'post', port: port});
+    request({testname:'Light Test 4', pathname: '/incorrect', method: 'post', port: port});
+    request({testname:'Light Test 5', pathname: '/incorrect', method: 'get', port: port});
+    request({testname:'Light Test 6', pathname: '/status', method: 'post', port: port});
+    request({testname:'Light Test 7', pathname: '/status', method: 'get', port: port});
 }
 
 // Tests for switch
 async function test_switch(){
-    request({testname: '/switch/status', pathname: '/switch/status', method: 'get'});
+    port = parseInt(process.env.SWITCH_PORT);
+    request({testname: 'Switch Test 1', pathname: '/status', method: 'get', port: port});
+    request({testname: 'Switch Test 2', pathname: '/incorrect', method: 'get', port: port});
+    request({testname: 'Switch Test 3', pathname: '/incorrect', method: 'post', port: port});
 }
 
-async function request({testname = 'test', hostname = '::1', pathname = '/', method = 'get', observe = false}) {
+async function request({testname = 'test', hostname = '::1', port = 5000, pathname = '/', method = 'get', observe = false}) {
     const req = coap.request({
-        hostname: '::1',
+        hostname: hostname,
+        port: port,
         observe: observe,
         pathname: pathname,
         method: method,
     });
     
     req.on('response', (res) => {
-        console.log(method + ' ' + testname);
+        console.log(testname + ' | ' + method + ' ' + pathname);
         console.log('\t' + res.code);
         console.log('\t' + String(res.payload));
     });
