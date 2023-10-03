@@ -1,12 +1,12 @@
-require('dotenv').config()
-const coap = require('coap');
+import 'dotenv/config';
+import coap from 'coap';
 
 test_light();
 test_switch();
 
 // Tests for light
 async function test_light(){
-    port = parseInt(process.env.LIGHT_PORT);
+    let port = parseInt(process.env.LIGHT_PORT);
     request({testname:'Light Test 1', pathname: '/on', method: 'post', port: port});
     request({testname:'Light Test 2', pathname: '/off', method: 'post', port: port});
     request({testname:'Light Test 3', pathname: '/toggle', method: 'post', port: port});
@@ -18,7 +18,7 @@ async function test_light(){
 
 // Tests for switch
 async function test_switch(){
-    port = parseInt(process.env.SWITCH_PORT);
+    let port = parseInt(process.env.SWITCH_PORT);
     request({testname: 'Switch Test 1', pathname: '/status', method: 'get', port: port});
     request({testname: 'Switch Test 2', pathname: '/incorrect', method: 'get', port: port});
     request({testname: 'Switch Test 3', pathname: '/incorrect', method: 'post', port: port});

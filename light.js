@@ -1,9 +1,9 @@
 // This file defines a smart light that can be turned on, off or toggled via a coap interface
-require('dotenv').config()
-const coap = require('coap');
-const server = coap.createServer({type: 'udp6'});
-require('./util');
+import 'dotenv/config';
+import coap from 'coap';
+import {debugLog} from './util.js';
 
+const server = coap.createServer({type: 'udp6'});
 const PORT = parseInt(process.env.LIGHT_PORT);
 
 class Light {

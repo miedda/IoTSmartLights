@@ -1,7 +1,5 @@
 
 const logging = true;
-debugLog = (msg) => {
+export function debugLog(msg) {
     if (logging) console.log(msg);
 }
-
-exports.debugLog = debugLog;

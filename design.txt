@@ -1,0 +1,13 @@
+Functions
+- Receive on requests from external sources.
+- Mapping logical switches to logical lights on the local network.
+- Modifying data reports to reduce overhead at higher servers.
+
+Gateway Implementation plan
+- Start by achieving interface with switch and light.
+- Next establish a mechanism to use the switch to control the light.
+- Next create multiple lights, and store them as a group (infact, any control of lights should be control of a group. Just add a light to a group).
+- Next create http interface to server. This server need to be horizontally scalable, and behind a load balancer.
+
+Thoughts - Are groups the unit of information that makes this more useful? I think they might be! Abstract a given light to be a group.
+

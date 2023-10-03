@@ -1,27 +1,28 @@
 // This file defines a smart light that can be turned on, off or toggled via a coap interface
-require('dotenv').config()
-const coap = require('coap');
+import 'dotenv/config';
+import coap from 'coap';
+import {debugLog} from './util.js';
+import EventEmitter from 'events';
+
 const server = coap.createServer({type: 'udp6'});
-require('./util');
+const port = parseInt(process.env.SWITCH_PORT);
 
-const PORT = parseInt(process.env.SWITCH_PORT);
-
-
-class LightSwitch {
+class LightSwitch{
     constructor(id) {
         this.id = id;
         this.startTime = Date.now();
         this.state = false;
+        this.changeEmitter = new EventEmitter();
     }
 
     on() {
         this.state = true;
-        debugLog(this.toString())
+        this.changeEmitter.emit('change');
     }
 
     off() {
         this.state = false;
-        debugLog(this.toString())
+        this.changeEmitter.emit('change');
     }
 
     toString() {
@@ -43,8 +44,19 @@ class LightSwitch {
     }
 }
 
-// Instantiate the light
+
+// Instantiate the light.
 let lightSwitch = new LightSwitch(1);
+
+// Stimulate the light to change every second.
+setInterval(() => {
+    if(lightSwitch.state){
+        lightSwitch.off();
+    } else {
+        lightSwitch.on();
+    }
+}, 1000);
+
 debugLog(`New switch: ${lightSwitch.toString()}`);
 
 server.on('request', (req, res) => {
@@ -56,18 +68,11 @@ server.on('request', (req, res) => {
     else {
         handleGET(req, res);
     }
-    // handleObserve(req, res);
 });
 
-// TODO: If add courtesy light
 function handlePOST(req, res){
     const path = req.url.split('/');
     switch(path[1]){
-//         case "courtesy":
-//             light.on();
-//             res.code = '2.03';
-//             res.end(JSON.stringify(light.getStatus()));
-//             break;
         default:
             debugLog(`Bad request:\n${req.url}`);
             res.code = '4.00';
@@ -80,8 +85,19 @@ function handleGET(req, res){
     const path = req.url.split('/');
     switch(path[1]){
         case "status":
-            res.code = '2.05';
-            res.end(JSON.stringify(lightSwitch.getStatus()));
+            if (req.headers.Observe !== 0) {
+                res.code = '2.05';
+                return res.end(JSON.stringify(lightSwitch.getStatus()));
+            }
+            const event = lightSwitch.changeEmitter.on('change', () => {
+                console.log(`state: ${lightSwitch.state}`);
+                res.write(JSON.stringify(lightSwitch.getStatus()));
+            });
+
+            res.on('finish', ()=>{
+                debugLog('client lost');
+                lightSwitch.changeEmitter.removeAllListeners(event);
+            });
             break;
         default:
             debugLog(`Unknown request:\n${req.url}`);
@@ -91,10 +107,6 @@ function handleGET(req, res){
     }
 }
 
-function handleObserve(req, res){
-    // TODO   
-}
-
-server.listen(PORT, () => {
-    debugLog(`Server started on port ${PORT}`); 
+server.listen(port, () => {
+    debugLog(`Server started on port ${port}`); 
 });
