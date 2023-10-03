@@ -3,4 +3,5 @@ Useful links:
 - https://stackoverflow.com/questions/55027338/implementing-coap-protocol-on-node-js
 - COAP overview https://www.youtube.com/watch?v=j8CpEElERr8 
 - COAP discovery https://jaime.win/lecture/coapdiscovery.html 
-- https://blogs.oracle.com/javamagazine/post/java-coap-constrained-application-protocol-advanced 
+- https://blogs.oracle.com/javamagazine/post/java-coap-constrained-application-protocol-introduction
+- https://blogs.oracle.com/javamagazine/post/java-coap-constrained-application-protocol-advanced
