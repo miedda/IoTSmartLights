@@ -1,21 +1,25 @@
 const coap = require('coap');
 
+test_light();
+test_switch();
+
 // Tests for light
-request({pathname: '/on', method: 'post'});
-request({pathname: '/off', method: 'post'});
-request({pathname: '/toggle', method: 'post'});
-request({pathname: '/incorrect', method: 'post'});
-request({pathname: '/incorrect', method: 'get'});
-request({pathname: '/status', method: 'get'});
+async function test_light(){
+    request({testname:'/light/on', pathname: '/light/on', method: 'post'});
+    request({testname:'/light/off', pathname: '/light/off', method: 'post'});
+    request({testname:'/light/toggle', pathname: '/light/toggle', method: 'post'});
+    request({testname:'/light/incorrect', pathname: '/light/incorrect', method: 'post'});
+    request({testname:'/light/incorrect', pathname: '/light/incorrect', method: 'get'});
+    request({testname:'/light/status', pathname: '/light/status', method: 'post'});
+    request({testname:'/light/status', pathname: '/light/status', method: 'get'});
+}
 
-// Tests for 
+// Tests for switch
+async function test_switch(){
+    request({testname: '/switch/status', pathname: '/switch/status', method: 'get'});
+}
 
-
-
-
-
-
-function request({hostname = '::1', pathname = '/', method = 'get', observe = false}) {
+async function request({testname = 'test', hostname = '::1', pathname = '/', method = 'get', observe = false}) {
     const req = coap.request({
         hostname: '::1',
         observe: observe,
@@ -24,8 +28,9 @@ function request({hostname = '::1', pathname = '/', method = 'get', observe = fa
     });
     
     req.on('response', (res) => {
-        console.log(res.code);
-        console.log(String(res.payload));
+        console.log(method + ' ' + testname);
+        console.log('\t' + res.code);
+        console.log('\t' + String(res.payload));
     });
     
     req.end();
