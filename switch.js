@@ -113,11 +113,11 @@ function handleGET(req, res){
                 debugLog(`send ${lightSwitch.state}`);
                 res.write(JSON.stringify(lightSwitch.getStatus()));
             });
-
             res.on('finish', ()=>{
                 debugLog('client lost');
                 lightSwitch.changeEmitter.removeAllListeners(event);
             });
+            res.write(JSON.stringify(lightSwitch.getStatus()));
             break;
         default:
             debugLog(`Unknown request:\n${req.url}`);

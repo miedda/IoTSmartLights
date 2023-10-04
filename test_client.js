@@ -19,9 +19,9 @@ function test_light(){
 // Tests for switch
 function test_switch(){
     let port = parseInt(process.env.SWITCH_PORT);
-    // request({testname: 'Switch Test 1', pathname: '/status', method: 'get', port: port});
-    // request({testname: 'Switch Test 2', pathname: '/incorrect', method: 'get', port: port});
-    // request({testname: 'Switch Test 3', pathname: '/incorrect', method: 'post', port: port});
+    request({testname: 'Switch Test 1', pathname: '/status', method: 'get', port: port});
+    request({testname: 'Switch Test 2', pathname: '/incorrect', method: 'get', port: port});
+    request({testname: 'Switch Test 3', pathname: '/incorrect', method: 'post', port: port});
     request({testname: 'Switch Test 4', pathname: '/status', method: 'get', port: port, observe: true, observeCallback: (data)=>{console.log(JSON.parse(data))}});
 }
 
