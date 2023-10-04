@@ -89,9 +89,9 @@ let light = new Light(0, '::1', 5000);
 let lightSwitch = new Switch(1, '::1', 5001);
 lightSwitch.linkLight(light);
 
-// HTTP Server
+// HTTP API
 const app = express();
-const port = parseInt(process.env.SERVER_PORT);
+const port = parseInt(process.env.GATEWAY_PORT);
 
 
 app.listen(port, () => {
@@ -117,14 +117,14 @@ app.get('/switches', (req, res) => {
 
 app.post('/on/:id', (req, res) => {
     // Turn on the light with :id 
-    const result = light.on();
-    res.send(result);
+    light.on();
+    res.send(JSON.stringify(light));
 });
 
 app.post('/off/:id', (req, res) => {
     // Turn off the light with :id 
-    const result = light.off();
-    res.send(result);
+    light.off();
+    res.send(JSON.stringify(light));
 });
 
 

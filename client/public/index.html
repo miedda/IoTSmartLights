@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<body>
+    <script>
+        function lightOn() {
+            let address = '::1'
+            let port = '8000';
+            let id = '0';
+            console.log('on');
+            fetch(`http://[${address}]:${port}/on/${id}`, {method: "POST", mode: "no-cors"});
+        }
+
+        function lightOff() {
+            let address = '::1'
+            let port = '8000';
+            let id = '0';
+            console.log('off');
+            fetch(`http://[${address}]:${port}/on/${id}`, {method: "POST", mode: "no-cors"});
+        }
+    </script>
+
+    <h1>Light Changer</h1>
+    <p>Use these buttons to change the light</p>
+        <div>
+            <button onclick="lightOn()">On</button>
+        </div>
+        <div>
+            <button onclick="lightOff()">Off</button>
+        </div>
+</body>
+</html>
