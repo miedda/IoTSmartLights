@@ -1,7 +1,7 @@
 // The purpose of the gateway is to handle direct COAP interface with the devices and interface with the broader system.
 import 'dotenv/config';
 import coap from 'coap';
-import {debugLog} from './util.js';
+import {debugLog} from '../util.js';
 import express from 'express';
 
 class Light {

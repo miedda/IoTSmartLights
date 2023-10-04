@@ -1,7 +1,7 @@
 // This file defines a smart light that can be turned on, off or toggled via a coap interface
 import 'dotenv/config';
 import coap from 'coap';
-import {debugLog} from './util.js';
+import {debugLog} from '../util.js';
 import EventEmitter from 'events';
 import readline from 'readline';
 
