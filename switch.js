@@ -3,6 +3,7 @@ import 'dotenv/config';
 import coap from 'coap';
 import {debugLog} from './util.js';
 import EventEmitter from 'events';
+import readline from 'readline';
 
 const server = coap.createServer({type: 'udp6'});
 const port = parseInt(process.env.SWITCH_PORT);
@@ -22,6 +23,11 @@ class LightSwitch{
 
     off() {
         this.state = false;
+        this.changeEmitter.emit('change');
+    }
+
+    toggle() {
+        this.state = !this.state;
         this.changeEmitter.emit('change');
     }
 
@@ -48,15 +54,28 @@ class LightSwitch{
 // Instantiate the light.
 let lightSwitch = new LightSwitch(1);
 
-// Stimulate the light to change every second.
-setInterval(() => {
-    if(lightSwitch.state){
-        lightSwitch.off();
-    } else {
-        lightSwitch.on();
+// // Stimulate the light to change every second.
+// setInterval(() => {
+//     if(lightSwitch.state){
+//         lightSwitch.off();
+//     } else {
+//         lightSwitch.on();
+//     }
+//     debugLog(`state: ${lightSwitch.state}`);
+// }, 1000);
+
+// Create key handler to change the switch value based on key press
+readline.emitKeypressEvents(process.stdin);
+if (process.stdin.isTTY) process.stdin.setRawMode(true);
+
+process.stdin.on('keypress', (str, key)=>{
+    if(key.name == 't'){
+        lightSwitch.toggle();
+        debugLog(`state: ${lightSwitch.state}`);
+    } else if (key.name == 'q' || (key.ctrl && key.name == 'c')) {
+        process.exit();
     }
-    debugLog(`state: ${lightSwitch.state}`);
-}, 1000);
+})
 
 debugLog(`New switch: ${lightSwitch.toString()}`);
 
