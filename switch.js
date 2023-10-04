@@ -55,6 +55,7 @@ setInterval(() => {
     } else {
         lightSwitch.on();
     }
+    debugLog(`state: ${lightSwitch.state}`);
 }, 1000);
 
 debugLog(`New switch: ${lightSwitch.toString()}`);
@@ -90,7 +91,7 @@ function handleGET(req, res){
                 return res.end(JSON.stringify(lightSwitch.getStatus()));
             }
             const event = lightSwitch.changeEmitter.on('change', () => {
-                console.log(`state: ${lightSwitch.state}`);
+                debugLog(`send ${lightSwitch.state}`);
                 res.write(JSON.stringify(lightSwitch.getStatus()));
             });
 
