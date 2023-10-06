@@ -1,128 +1,65 @@
 // The purpose of the gateway is to handle direct COAP interface with the devices and interface with the broader system.
 import 'dotenv/config';
-import coap from 'coap';
-import {debugLog} from '../util.js';
 import express from 'express';
+import Light from './light.js';
+import Switch from './switch.js';
 
-class Light {
-    constructor(id, address, port){
-        this.id = id;
-        this.address = address;
-        this.port = port;
-        this.state = false;
-    }
+// Create lights and switches. In a real system this would be handled by a pairing
+// implemented using COAP discovery features to link devices to the gateway.
+let numEachDevice = 2;
+let lights = [];
+const lightIP = process.env.LIGHT_ADDRESS;
+const lightStartingPort = parseInt(process.env.LIGHT_PORT);
+let switches = [];
+const switchIP = process.env.SWITCH_ADDRESS;
+const switchStartingPort = parseInt(process.env.SWITCH_PORT);
 
-    on(){
-        debugLog(`Turn on light ${this.id}`);
-        // Send request
-        const req = coap.request({hostname: this.address, port: this.port, method: 'post', pathname: '/on'})
-        req.on('response', (res) => {
-            console.log('\t' + res.code);
-            console.log('\t' + String(res.payload));
-            return res;
-        });
-        req.end();
-    }
-
-    off(){
-        debugLog(`Turn off light ${this.id}`);
-        // Send request
-        const req = coap.request({hostname: this.address, port: this.port, method: 'post', pathname: '/off'})
-        req.on('response', (res) => {
-            console.log('\t' + res.code);
-            console.log('\t' + String(res.payload));
-            return res;
-        });
-        req.end();
-    }
+for (let i = 0; i < numEachDevice; i++) {
+    lights.push(new Light(i, lightIP, lightStartingPort + i));
+    switches.push(new Switch(i, switchIP, switchStartingPort + i));
+    switches[i].linkLight(lights[i]);
 }
+console.log("\nLights\n\n", lights);
+console.log("\nSwitches\n\n", switches);
+switches.forEach((s) => {console.log("Switch ", s.id, " has ", s.linkedLights)});
 
-class Switch {
-    constructor(id, address, port){
-        this.id = id,
-        this.address = address,
-        this.port = port,
-        this.state = false,
-        this.linkedLights = [],
-
-        // Observe for switch events
-        this.init();
-    }
-    
-    init(){        
-        // Subscribe to switch
-        const switchObserveRequest = coap.request({
-            observe: true,
-            hostname: '::1',
-            pathname: '/status',
-            port: 5001,
-        })
-        
-        switchObserveRequest.on('response', (res) => {
-            res.on('data', (data) => {
-                // debugLog(data);
-                const msg = JSON.parse(data);
-                debugLog(`Received switch event ${JSON.stringify(msg)}`);
-                if(msg.state) {
-                    this.linkedLights.forEach(light => {
-                        light.on();
-                    })
-                } else {
-                    this.linkedLights.forEach(light => {
-                        light.off();
-                    });
-                }
-            })
-        })
-        
-        switchObserveRequest.end()
-    }
-
-    linkLight(light){
-        this.linkedLights.push(light);
-    }
-}
-
-
-// Create light object to track light state
-let light = new Light(0, '::1', 5000);
-let lightSwitch = new Switch(1, '::1', 5001);
-lightSwitch.linkLight(light);
 
 // HTTP API
 const app = express();
-const port = parseInt(process.env.GATEWAY_PORT);
-
+const port = parseInt(process.env.GATEWAY_HTTP_PORT);
 
 app.listen(port, () => {
     console.log(`Gateway listening on port ${port}`);
 });
 
-app.get('/ping', (req,res) => {
-    // For testing connection
-    res.send('ping');
-});
+// app.get('/ping', (req,res) => {
+//     // For testing connection
+//     res.send('ping');
+// });
 
-app.get('/lights', (req, res) => {
-    // Get a list of registered lights on the gateway
-    // TODO - expand to list of lights
-    res.send(JSON.stringify(light));
-});
+// app.get('/lights', (req, res) => {
+//     // Get a list of registered lights on the gateway
+//     // TODO - expand to list of lights
+//     res.send(JSON.stringify(light));
+// });
 
-app.get('/switches', (req, res) => {
-    // Get a list of registered switches on the gateway
-    // TODO - expand to list of all switches
-    res.send(JSON.stringify(lightSwitch));
-});
+// app.get('/switches', (req, res) => {
+//     // Get a list of registered switches on the gateway
+//     // TODO - expand to list of all switches
+//     res.send(JSON.stringify(lightSwitch));
+// });
 
 app.post('/on/:id', (req, res) => {
-    // Turn on the light with :id 
+    // Turn on the light with :id
+    console.log(req.params.id);
+    const light = result.lights.find((l) => l.id === req.params.id);
     light.on();
     res.send(JSON.stringify(light));
 });
 
 app.post('/off/:id', (req, res) => {
     // Turn off the light with :id 
+    const light = result.lights.find((l) => l.id === req.params.id);
     light.off();
     res.send(JSON.stringify(light));
 });

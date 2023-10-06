@@ -52,7 +52,7 @@ class LightSwitch{
 
 
 // Instantiate the light.
-let lightSwitch = new LightSwitch(1);
+let lightSwitch = new LightSwitch(0);
 
 // // Stimulate the light to change every second.
 // setInterval(() => {
