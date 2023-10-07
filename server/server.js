@@ -1,5 +1,6 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import cors from 'cors';
 import {LightSchema, LightStateSchema} from '../schema/light.js';
 import {SwitchSchema, SwitchStateSchema} from '../schema/switch.js';
 import {BuildingSchema} from '../schema/building.js';
@@ -13,6 +14,7 @@ const app = express();
 const port = process.env.SERVER_PORT;
 
 app.use(express.json());
+app.use(cors());
 
 await mongoose.connect(process.env.MONGO_CONNECTION_STRING);
 

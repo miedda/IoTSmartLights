@@ -3,28 +3,35 @@
 <body>
     <script>
         function lightOn() {
-            let address = '::1'
-            let port = '8000';
-            let id = '6521b6105fe3951deca37e11';
+            const address = '::1';
+            const port = '8000';
+            const id = '6521b7925fe3951deca37e53';
             console.log('on');
             fetch(`http://[${address}]:${port}/on/${id}`, {method: "POST", mode: "no-cors"});
         }
 
         function lightOff() {
-            let address = '::1'
-            let port = '8000';
-            let id = '6521b6105fe3951deca37e11';
+            const address = '::1';
+            const port = '8000';
+            const id = '6521b7925fe3951deca37e53';
             console.log('off');
             fetch(`http://[${address}]:${port}/off/${id}`, {method: "POST", mode: "no-cors"});
         }
 
         document.addEventListener("DOMContentLoaded", async function () {
+            const address = 'localhost';
+            const port = '3000';
+            const url = `http://${address}:${port}/lights`;
             try {
-                const response = fetch(`http://${address}:${port}/lights`, {method: "GET", mode: "no-cors"});
-                if(!response.ok) {throw new Error("Error")};
-                const data = await response.json();
+                console.log(url);
+                const response = await fetch(url, {method: "GET"});
+                console.log(response);
+                // if(!response.ok) {throw new Error("Error")};
+                const data = await response.text();
+                console.log(data);
+                const json = JSON.parse(data);
                 const element = document.getElementById("lights-element");
-                element.innerHTML = `${data.data}`;
+                element.innerHTML = `<p>${data}<p>`;
             }
             catch(error) {
                 console.error(error);
