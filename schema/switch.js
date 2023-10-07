@@ -2,13 +2,10 @@ export const SwitchStateSchema = {
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
     "properties": {
-      "id": {
-        "type": "integer"
+      "lightId": {
+        "type": "string"
       },
       "time": {
-        "type": "integer"
-      },
-      "startTime": {
         "type": "integer"
       },
       "state": {
@@ -16,30 +13,33 @@ export const SwitchStateSchema = {
       }
     },
     "required": [
-      "id",
+      "lightId",
       "time",
-      "startTime",
       "state"
     ]
   }
-
-export const SwitchSpecificationSchema = {
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "type": "object",
-  "properties": {
-    "id": {
-      "type": "integer"
-    },
-    "location": {
-      "type": "string"
-    },
-    "time": {
-      "type": "integer"
-    }
+  
+  export const SwitchSchema = {
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+      "buildingId": {
+        "type": "string"
+      },
+      "location": {
+        "type": "string"
+      },
+      "startTime": {
+        "type": "integer"
+      },
+      "time": {
+        "type": "integer"
+      }
   },
   "required": [
-    "id",
+    "buildingId",
     "location",
+    "startTime",
     "time"
   ]
 }

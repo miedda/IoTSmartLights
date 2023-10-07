@@ -2,16 +2,10 @@ export const LightStateSchema = {
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
     "properties": {
-      "id": {
-        "type": "integer"
-      },
-      "building": {
-        "type": "integer"
+      "lightId": {
+        "type": "string"
       },
       "time": {
-        "type": "integer"
-      },
-      "startTime": {
         "type": "integer"
       },
       "state": {
@@ -19,10 +13,8 @@ export const LightStateSchema = {
       }
     },
     "required": [
-      "id",
-      "building",
+      "lightId",
       "time",
-      "startTime",
       "state"
     ]
   }
@@ -31,23 +23,23 @@ export const LightStateSchema = {
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
     "properties": {
-      "id": {
-        "type": "integer"
-      },
-      "building": {
-        "type": "integer"
+      "buildingId": {
+        "type": "string"
       },
       "location": {
         "type": "string"
+      },
+      "startTime": {
+        "type": "integer"
       },
       "time": {
         "type": "integer"
       }
     },
     "required": [
-      "id",
-      "building",
+      "buildingId",
       "location",
+      "startTime",
       "time"
   ]
 }
