@@ -9,8 +9,8 @@ const server = coap.createServer({type: 'udp6'});
 const port = parseInt(process.env.SWITCH_PORT);
 
 class LightSwitch{
-    constructor(id) {
-        this.id = id;
+    constructor() {
+        this.id = null;
         this.state = false;
         this.changeEmitter = new EventEmitter();
     }
@@ -50,7 +50,7 @@ class LightSwitch{
 
 
 // Instantiate the light.
-let lightSwitch = new LightSwitch(0);
+let lightSwitch = new LightSwitch();
 
 // // Stimulate the light to change every second.
 // setInterval(() => {
@@ -91,6 +91,12 @@ server.on('request', (req, res) => {
 function handlePOST(req, res){
     const path = req.url.split('/');
     switch(path[1]){
+        case "id":
+            lightSwitch.id = req.payload.toString();
+            console.log(this.toString())
+            res.code = '2.04';
+            res.end(JSON.stringify(lightSwitch.getStatus()));
+            break;
         default:
             debugLog(`Bad request:\n${req.url}`);
             res.code = '4.00';

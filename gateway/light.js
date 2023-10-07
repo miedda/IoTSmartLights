@@ -36,7 +36,7 @@ export default class Light {
         debugLog(`Set light id to ${id}`);
         const req = coap.request({hostname: this.address, port: this.port, method: 'post', pathname: '/id'})
         req.on('response', (res) => {
-            debugLog(`Id set response: ${res.code}`);
+            debugLog(`Light id set response: ${res.code}`);
             this._id = id;
         })
         req.end(id);

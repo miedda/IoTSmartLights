@@ -68,6 +68,7 @@ function handlePOST(req, res){
             console.log(this.toString())
             res.code = '2.04';
             res.end(JSON.stringify(light.getStatus()));
+            break;
         case "on":
             light.on();
             res.code = '2.03';

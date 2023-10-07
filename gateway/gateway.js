@@ -94,7 +94,6 @@ async function updateServer(path, message, schema) {
         console.log(validator.errors[0]);
     }
     try{
-        console.log('try');
         const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -107,7 +106,6 @@ async function updateServer(path, message, schema) {
             console.log(response.status);
         }
         const doc = await response.json();
-        console.log("doc", doc);
         return doc;
     } catch (error) {
         console.error(error);
