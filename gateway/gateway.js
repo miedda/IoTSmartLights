@@ -88,9 +88,9 @@ app.post('/off/:id', (req, res) => {
 });
 
 async function updateServer(path, message, schema) {
-    console.log("update", path, "with");
-    console.log(message);
     const url = `http://${serverAddress}:${serverPort}${path}`;
+    console.log("update", url, path, "with");
+    console.log(message);
     const validator = validate(message, schema);
     if(validator.errors.length != 0){
         console.log(validator.errors[0]);
@@ -105,7 +105,7 @@ async function updateServer(path, message, schema) {
         });
         
         if(!response.ok) {
-            console.log(response.status);
+            console.log('Request error', response.status);
         }
         const doc = await response.json();
         return doc;

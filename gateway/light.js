@@ -55,12 +55,14 @@ export default class Light {
         });
         req.end();
 
-        // update state in server
+        // update state in server if id has been assigned
+        if(!this._id) return;
         const state = {
             lightId: this._id,
             time: Date.now(),
             state: this.state
         }
+        console.log("light state message:",state);
         const entry = await this.updateFunc('/light/update', state, LightStateSchema);
         console.log(entry)
     }
@@ -78,12 +80,14 @@ export default class Light {
         });
         req.end();
 
-        // update state in server
+        // update state in server if id has been assigned
+        if(!this._id) return;
         const state = {
             lightId: this._id,
             time: Date.now(),
             state: this.state
         }
+        console.log("light state message:",state);
         const entry = await this.updateFunc('/light/update', state, LightStateSchema);
         console.log(entry)
     }

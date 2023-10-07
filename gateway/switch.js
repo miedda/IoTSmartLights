@@ -61,6 +61,7 @@ export default class Switch {
                     });
                 }
                 // Update state in server
+                if(!this._id) return;
                 const state = {
                     switchId: this._id,
                     time: Date.now(),
