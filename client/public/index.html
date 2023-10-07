@@ -5,7 +5,7 @@
         function lightOn() {
             let address = '::1'
             let port = '8000';
-            let id = '0';
+            let id = '6521b6105fe3951deca37e11';
             console.log('on');
             fetch(`http://[${address}]:${port}/on/${id}`, {method: "POST", mode: "no-cors"});
         }
@@ -13,13 +13,29 @@
         function lightOff() {
             let address = '::1'
             let port = '8000';
-            let id = '0';
+            let id = '6521b6105fe3951deca37e11';
             console.log('off');
             fetch(`http://[${address}]:${port}/off/${id}`, {method: "POST", mode: "no-cors"});
         }
+
+        document.addEventListener("DOMContentLoaded", async function () {
+            try {
+                const response = fetch(`http://${address}:${port}/lights`, {method: "GET", mode: "no-cors"});
+                if(!response.ok) {throw new Error("Error")};
+                const data = await response.json();
+                const element = document.getElementById("lights-element");
+                element.innerHTML = `${data.data}`;
+            }
+            catch(error) {
+                console.error(error);
+            }
+        })
     </script>
 
     <h1>Light Changer</h1>
+    <p>Available lights:</p>
+    <div id = "lights-element">
+    </div>
     <p>Use these buttons to change the light</p>
         <div>
             <button onclick="lightOn()">On</button>

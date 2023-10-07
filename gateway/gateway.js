@@ -67,7 +67,8 @@ app.post('/on/:id', (req, res) => {
     // Turn on the light with :id
     console.log(`Request to turn on ${req.params.id}`);
     lights.forEach((l) => {
-        if (l.id === parseInt(req.params.id)) {
+        console.log(l._id);
+        if (l._id === req.params.id) {
             l.on()
             res.send(JSON.stringify(l));
         };
@@ -78,7 +79,8 @@ app.post('/off/:id', (req, res) => {
     // Turn off the light with :id 
     console.log(`Request to turn off ${req.params.id}`);
     lights.forEach((l) => {
-        if (l.id === parseInt(req.params.id)) {
+        console.log(l._id);
+        if (l._id === req.params.id) {
             l.off()
             res.send(JSON.stringify(l));
         };
