@@ -27,8 +27,19 @@ export default class Light {
         }
 
         const entry = await this.updateFunc('/light/new', msg, LightSchema);
-        this._id = entry._id;
+        // this._id = entry._id;
+        this.setId(entry._id);
         console.log(this);
+    }
+
+    async setId(id){
+        debugLog(`Set light id to ${id}`);
+        const req = coap.request({hostname: this.address, port: this.port, method: 'post', pathname: '/id'})
+        req.on('response', (res) => {
+            debugLog(`Id set response: ${res.code}`);
+            this._id = id;
+        })
+        req.end(id);
     }
 
     async on(){

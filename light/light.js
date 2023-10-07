@@ -7,8 +7,8 @@ const server = coap.createServer({type: 'udp6'});
 const PORT = parseInt(process.env.LIGHT_PORT);
 
 class Light {
-    constructor(id) {
-        this.id = id;
+    constructor() {
+        this.id = null;
         this.state = false;
     }
 
@@ -46,7 +46,7 @@ class Light {
 }
 
 // Instantiate the light
-let light = new Light(0);
+let light = new Light();
 debugLog(`New light: ${light.toString()}`);
 
 server.on('request', (req, res) => {
@@ -63,6 +63,11 @@ server.on('request', (req, res) => {
 function handlePOST(req, res){
     const path = req.url.split('/');
     switch(path[1]){
+        case "id":
+            light.id = req.payload.toString();
+            console.log(this.toString())
+            res.code = '2.04';
+            res.end(JSON.stringify(light.getStatus()));
         case "on":
             light.on();
             res.code = '2.03';
