@@ -2,13 +2,19 @@ import {mongoose} from 'mongoose';
 
 const SwitchState = new mongoose.Schema({
     time: Date,
-    startTime: Date,
-    state: Boolean
+    state: Boolean,
+    switch: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Switch'
+    }
 });
 
-export const SwitchSpecification = new mongoose.Schema({
-    id: Number,
+export const Switch = new mongoose.Schema({
     time: Date,
+    startTime: Date,
     location: String,
-    data: [SwitchState]
-});
+    building: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Building'
+      }
+  });

@@ -2,13 +2,19 @@ import {mongoose} from 'mongoose';
 
 export const LightState = new mongoose.Schema({
   time: Date,
-  startTime: Date,
-  state: Boolean
+  state: Boolean,
+  light: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Light'
+  }
 });
 
-export const LightSpecification = new mongoose.Schema({
-    id: Number,
-    time: Date,
-    location: String,
-    data: [LightState]
+export const Light = new mongoose.Schema({
+  time: Date,
+  startTime: Date,
+  location: String,
+  building: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Building'
+  }
 });
