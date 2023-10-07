@@ -1,15 +1,15 @@
 import {mongoose} from 'mongoose';
 
-export const LightState = new mongoose.Schema({
+export const LightState = mongoose.model('LightState', new mongoose.Schema({
   time: Date,
   state: Boolean,
   light: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Light'
   }
-});
+}));
 
-export const Light = new mongoose.Schema({
+export const Light = mongoose.model('Light', new mongoose.Schema({
   time: Date,
   startTime: Date,
   location: String,
@@ -17,4 +17,4 @@ export const Light = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Building'
   }
-});
+}));
