@@ -16,7 +16,6 @@ export const BuildingSchema = {
       }
     },
     "required": [
-      "id",
       "time",
       "address",
       "organisation"

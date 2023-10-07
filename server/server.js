@@ -87,7 +87,7 @@ app.post('/building/new', async (req, res) => {
     
         // Send result to client
         console.log(doc);
-        res.status(200).send({status: 'saved'});
+        res.status(200).send(doc);
     } catch (error) {
         console.error(error);
         res.status(500).send();
@@ -244,14 +244,28 @@ app.post('/switch/update', async (req, res) => {
             res.status(404).send();
             return;
         }
-        lightSwitch.data.push(newState);
-        const doc = await result.save();
-        
-        // Respond to client
-        if(!doc) {
-            res.status(500).send();
+
+        // Perform find one and update to handle concurrent updates
+        const doc = await Building.findOneAndUpdate(
+            {id: msg.building, 'switches.id': msg.id, __v: result.__v},
+            {$push: {'switches.$.data': newState}},
+            {new: true}
+        );
+
+        if (!doc) {
+            console.log('Error: Concurrent update detected, no update performed');
+            res.status(409).send();
             return;
         }
+        // // lightSwitch.data.push(newState);
+        // // const doc = await result.save();
+        
+        // // Respond to client
+        // if(!doc) {
+        //     res.status(500).send();
+        //     return;
+        // }
+
         console.log(doc);
         res.status(200).send({status: 'saved'});
     } catch (error) {

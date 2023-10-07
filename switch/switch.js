@@ -11,7 +11,6 @@ const port = parseInt(process.env.SWITCH_PORT);
 class LightSwitch{
     constructor(id) {
         this.id = id;
-        this.startTime = Date.now();
         this.state = false;
         this.changeEmitter = new EventEmitter();
     }
@@ -39,7 +38,6 @@ class LightSwitch{
     getStatus() {
         return {
             "id": this.id,
-            "startTime": this.startTime,
             "state": this.state
         }
     }

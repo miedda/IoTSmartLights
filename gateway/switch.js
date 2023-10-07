@@ -3,18 +3,39 @@ import coap from 'coap';
 import {debugLog} from '../util.js';
 
 export default class Switch {
-    constructor(id, address, port){
-        this.id = id,
-        this.address = address,
-        this.port = port,
-        this.state = false,
-        this.linkedLights = [],
+    // constructor(id, address, port){
+    //     this.id = id,
+    //     this.address = address,
+    //     this.port = port,
+    //     this.state = false,
+    //     this.linkedLights = [],
 
-        // Observe for switch events
+    //     this.init();
+    // }
+
+    constructor({id, building, location, address, port, updateFunc}){
+        this.id = id;
+        this.building = building;
+        this.location = location;
+        this.address = address;
+        this.port = port;
+        this.state = false;
+        this.updateFunc = updateFunc;
+        this.startTime = Date.now();
+        this.linkedLights = [];
+        
         this.init();
     }
     
-    init(){        
+    init(){
+        const msg = {
+            id: this.id,
+            building: this.building,
+            time: Date.now(),
+            location: this.location
+        }
+        this.updateFunc('/switch/new', msg);
+
         // Subscribe to switch
         const switchObserveRequest = coap.request({
             observe: true,
@@ -29,8 +50,10 @@ export default class Switch {
             res.on('data', (data) => {
                 // debugLog(data);
                 const msg = JSON.parse(data);
+                debugLog(msg);
                 debugLog(`Received switch event ${JSON.stringify(msg)}`);
-                if(msg.state) {
+                this.state = msg.state;
+                if(this.state) {
                     this.linkedLights.forEach(light => {
                         console.log(`Switch ${this.id} turning on light ${light.id} at ${light.port}`);
                         light.on();
@@ -41,6 +64,15 @@ export default class Switch {
                         light.off();
                     });
                 }
+                // Update state in server
+                const state = {
+                    id: this.id,
+                    building: this.building,
+                    time: Date.now(),
+                    startTime: this.startTime,
+                    state: this.state
+                };
+                this.updateFunc('/switch/update', state);
             })
         })
         

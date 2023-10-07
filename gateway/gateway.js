@@ -3,6 +3,22 @@ import 'dotenv/config';
 import express from 'express';
 import Light from './light.js';
 import Switch from './switch.js';
+import fetch from 'node-fetch';
+
+// Define server interface
+const serverAddress = process.env.SERVER_ADDRESS;
+const serverPort = process.env.SERVER_PORT;
+
+// Create a building that houses the lights
+const buildingRequest = {
+    time: Date.now(),
+    address: "1 street st, City",
+    organisation: "Organisation ltd"
+}
+const building = await updateServer('/building/new', buildingRequest);
+console.log(building._id)
+console.log(building);
+
 
 // Create lights and switches. In a real system this would be handled by a pairing
 // implemented using COAP discovery features to link devices to the gateway.
@@ -10,19 +26,16 @@ let numEachDevice = 2;
 let lights = [];
 const lightIP = process.env.LIGHT_ADDRESS;
 const lightStartingPort = parseInt(process.env.LIGHT_PORT);
+// console.log(lightIP, lightStartingPort);
 let switches = [];
 const switchIP = process.env.SWITCH_ADDRESS;
 const switchStartingPort = parseInt(process.env.SWITCH_PORT);
 
 for (let i = 0; i < numEachDevice; i++) {
-    lights.push(new Light(i, lightIP, lightStartingPort + i));
-    switches.push(new Switch(i, switchIP, switchStartingPort + i));
+    lights.push(new Light({id: i, building: building.id, location:'location', address: lightIP, port: lightStartingPort + i, updateFunc: updateServer}));
+    switches.push(new Switch({id: i, building: building.id, location:'location', address: switchIP, port: switchStartingPort + i, updateFunc: updateServer}));
     switches[i].linkLight(lights[i]);
 }
-console.log("\nLights\n\n", lights);
-console.log("\nSwitches\n\n", switches);
-switches.forEach((s) => {console.log("Switch ", s.id, " has ", s.linkedLights)});
-
 
 // HTTP API
 const app = express();
@@ -51,20 +64,46 @@ app.listen(port, () => {
 
 app.post('/on/:id', (req, res) => {
     // Turn on the light with :id
-    console.log(req.params.id);
-    const light = result.lights.find((l) => l.id === req.params.id);
-    light.on();
-    res.send(JSON.stringify(light));
+    console.log(`Request to turn on ${req.params.id}`);
+    lights.forEach((l) => {
+        if (l.id === parseInt(req.params.id)) {
+            l.on()
+            res.send(JSON.stringify(l));
+        };
+    })
 });
 
 app.post('/off/:id', (req, res) => {
     // Turn off the light with :id 
-    const light = result.lights.find((l) => l.id === req.params.id);
-    light.off();
-    res.send(JSON.stringify(light));
+    console.log(`Request to turn off ${req.params.id}`);
+    lights.forEach((l) => {
+        if (l.id === parseInt(req.params.id)) {
+            l.off()
+            res.send(JSON.stringify(l));
+        };
+    })
 });
 
-
+async function updateServer(path, message) {
+    try{
+        const response = await fetch(`http://${serverAddress}:${serverPort}${path}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(message)
+        });
+    
+        
+        if(!response.ok) {
+            console.log(response.status);
+        }
+        const doc = await response.json();
+        return doc;
+    } catch (error) {
+        console.error(error);
+    }
+}
 
 
 

@@ -9,7 +9,6 @@ const PORT = parseInt(process.env.LIGHT_PORT);
 class Light {
     constructor(id) {
         this.id = id;
-        this.startTime = Date.now();
         this.state = false;
     }
 
@@ -36,7 +35,6 @@ class Light {
     getStatus() {
         return {
             "id": this.id,
-            "startTime": this.startTime,
             "state": this.state
         }
     }
