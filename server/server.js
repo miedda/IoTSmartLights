@@ -1,9 +1,11 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import {LightSpecificationSchema, LightStateSchema} from '../schema/light.js';
-import {SwitchSpecificationSchema, SwitchStateSchema} from '../schema/switch.js';
-import {BuildingSchema} from '../schema/building.js';
+import {LightSchema, LightStateSchema} from './schema/light.js';
+import {SwitchSchema, SwitchStateSchema} from './schema/switch.js';
+import {BuildingSchema} from './schema/building.js';
 import {Building} from './models/building.js';
+import {Switch, SwitchState} from './models/switch.js';
+import {Light, LightState} from './models/light.js';
 import 'dotenv/config.js';
 import {validate} from 'jsonschema';
 
@@ -58,25 +60,16 @@ app.get('/building', async (req, res) => {
 app.post('/building/new', async (req, res) => {
     const msg = validateRequest(req, res, BuildingSchema);
     console.log(msg);
-
-    // Create building object
-    const newBuilding = new Building({
-        id: msg.id,
-        time: msg.time,
-        address: msg.address,
-        organisation: msg.organisation,
-        lights: [],
-        switches: []
-    })
-
+    
     try{
+        // Create building object
+        const newBuilding = new Building({
+            time: msg.time,
+            address: msg.address,
+            organisation: msg.organisation,
+        });
+
         // Add to DB
-        const result = await Building.findOne({id: msg.id})
-        if (result) {
-            console.log('building already exists');
-            res.status(400).send();
-            return;
-        }
         const doc = await newBuilding.save();
     
         // Tell the client if it failed.
@@ -96,39 +89,30 @@ app.post('/building/new', async (req, res) => {
 })
 
 app.post('/light/new/', async (req, res) => {
-    const msg = validateRequest(req, res, LightSpecificationSchema);
+    const msg = validateRequest(req, res, LightSchema);
     console.log(msg);
 
-    // Create the light object
-    const newLight = {
-        id: msg.id,
-        time: msg.time,
-        location: msg.location,
-        data: []
-    }
-
     try {
-        // Add the light to its building
-        const result = await Building.findOne({id: msg.building})
-        if(!result) {
-            console.log('not found');
-            res.status(404).send();
-            return;
-        }
-        const light = result.lights.find((l) => l.id === msg.id);
-        if (light) {
-            console.log('light already exists');
-            res.status(400).send();
-            return;
-        }
-        result.lights.push(newLight);
-        const doc = await result.save();
+        // Create the switch object
+        const newLight = new Light({
+            building: msg.buildingId,
+            location: msg.location,
+            startTime: msg.startTime,
+            time: msg.time,
+        });
+
+        // Add to DB
+        const doc = await newLight.save();
+
         // Respond to client
         if(!doc) {
             res.status(500).send();
             return;
         }
-        res.status(200).send({status: 'saved'});
+
+        // Send result to client
+        console.log(doc);
+        res.status(200).send(doc);
     } catch (error) {
         console.error(error);
         res.status(500).send();
@@ -139,38 +123,29 @@ app.post('/light/new/', async (req, res) => {
 app.post('/light/update', async (req, res) => {
     const msg = validateRequest(req, res, LightStateSchema);
     console.log(msg);
-    
-    // Create the light state object to update
-    const newState = {
-        time: msg.time,
-        startTime: msg.startTime,
-        state: msg.state
-    }
 
     try{
-        // Store it in Mongo DB under its parent light
-        const result = await Building.findOne({id: msg.building, 'lights.id': msg.id});
-        if(!result) {
-            console.log('not found');
-            res.status(404).send();
-            return;
-        }
-        const light = result.lights.find((l) => l.id === msg.id);
-        if (!light) {
-            console.log('not found');
-            res.status(404).send();
-            return;
-        }
-        light.data.push(newState);
-        const doc = await result.save();
+        // Create the switch state object to update
+        const newState = new LightState({
+            time: msg.time,
+            state: msg.state,
+            light: msg.lightId
+        })
+
+        console.log(newState);
+
+        // Add to DB
+        const doc = await newState.save();
         
         // Respond to client
         if(!doc) {
             res.status(500).send();
             return;
         }
+
+        // Send result to client
         console.log(doc);
-        res.status(200).send({status: 'saved'});
+        res.status(200).send(doc);
     } catch (error) {
         console.error(error);
         res.status(500).send();
@@ -179,39 +154,30 @@ app.post('/light/update', async (req, res) => {
 })
 
 app.post('/switch/new/', async (req, res) => {
-    const msg = validateRequest(req, res, SwitchSpecificationSchema);
+    const msg = validateRequest(req, res, SwitchSchema);
     console.log(msg);
 
-    // Create the light object
-    const newSwitch = {
-        id: msg.id,
-        time: msg.time,
-        location: msg.location,
-        data: []
-    }
-
     try {
-        // Add the light to its building
-        const result = await Building.findOne({id: msg.building})
-        if(!result) {
-            console.log('not found');
-            res.status(404).send();
-            return;
-        }
-        const lightSwitch = result.switches.find((s) => s.id === msg.id);
-        if (lightSwitch) {
-            console.log('switch already exists');
-            res.status(400).send();
-            return;
-        }
-        result.switches.push(newSwitch);
-        const doc = await result.save();
+        // Create the switch object
+        const newSwitch = new Switch({
+            building: msg.buildingId,
+            location: msg.location,
+            startTime: msg.startTime,
+            time: msg.time,
+        });
+
+        // Add to DB
+        const doc = await newSwitch.save();
+
         // Respond to client
         if(!doc) {
             res.status(500).send();
             return;
         }
-        res.status(200).send({status: 'saved'});
+
+        // Send result to client
+        console.log(doc);
+        res.status(200).send(doc);
     } catch (error) {
         console.error(error);
         res.status(500).send();
@@ -223,51 +189,28 @@ app.post('/switch/update', async (req, res) => {
     const msg = validateRequest(req, res, SwitchStateSchema);
     console.log(msg);
     
-    // Create the light state object to update
-    const newState = {
-        time: msg.time,
-        startTime: msg.startTime,
-        state: msg.state
-    }
-
     try{
-        // Store it in Mongo DB under its parent light
-        const result = await Building.findOne({id: msg.building, 'switches.id': msg.id});
-        if(!result) {
-            console.log('not found');
-            res.status(404).send();
-            return;
-        }
-        const lightSwitch = result.switches.find((s) => s.id === msg.id);
-        if (!lightSwitch) {
-            console.log('not found');
-            res.status(404).send();
-            return;
-        }
+        // Create the switch state object to update
+        const newState = new SwitchState({
+            time: msg.time,
+            state: msg.state,
+            switch: msg.switchId
+        })
 
-        // Perform find one and update to handle concurrent updates
-        const doc = await Building.findOneAndUpdate(
-            {id: msg.building, 'switches.id': msg.id, __v: result.__v},
-            {$push: {'switches.$.data': newState}},
-            {new: true}
-        );
+        console.log(newState);
 
-        if (!doc) {
-            console.log('Error: Concurrent update detected, no update performed');
-            res.status(409).send();
-            return;
-        }
-        // // lightSwitch.data.push(newState);
-        // // const doc = await result.save();
+        // Add to DB
+        const doc = await newState.save();
         
-        // // Respond to client
-        // if(!doc) {
-        //     res.status(500).send();
-        //     return;
-        // }
+        // Respond to client
+        if(!doc) {
+            res.status(500).send();
+            return;
+        }
 
+        // Send result to client
         console.log(doc);
-        res.status(200).send({status: 'saved'});
+        res.status(200).send(doc);
     } catch (error) {
         console.error(error);
         res.status(500).send();
@@ -288,7 +231,7 @@ function validateRequest(req, res, schema) {
         const validation = validate(msg, schema);
         if(validation.errors.length != 0) {
             res.status(400).send(validation.errors.at(0).message);
-            console.log(validation);
+            console.log(validation.errors[0]);
             return;
         }
         return msg;

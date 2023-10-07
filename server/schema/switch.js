@@ -2,7 +2,7 @@ export const SwitchStateSchema = {
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
     "properties": {
-      "lightId": {
+      "switchId": {
         "type": "string"
       },
       "time": {
@@ -13,7 +13,7 @@ export const SwitchStateSchema = {
       }
     },
     "required": [
-      "lightId",
+      "switchId",
       "time",
       "state"
     ]
