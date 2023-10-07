@@ -41,8 +41,24 @@ app.get('/building/:id', async (req, res) => {
 
 app.get('/building', async (req, res) => {
     try {
-        const id = parseInt(req.params.id);
         const doc = await Building.find({});
+        if(!doc) {
+            console.log('not found');
+            res.status(404).send();
+            return;
+        }
+        console.log(doc);
+        res.status(200).send(doc);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send();
+        return;
+    }
+})
+
+app.get('/lights', async (req, res) => {
+    try {
+        const doc = await Light.find({});
         if(!doc) {
             console.log('not found');
             res.status(404).send();
