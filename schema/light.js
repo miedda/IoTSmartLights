@@ -19,7 +19,7 @@ export const LightStateSchema = {
     ]
   }
   
-  export const LightSpecificationSchema = {
+  export const LightSchema = {
     "$schema": "http://json-schema.org/draft-04/schema#",
     "type": "object",
     "properties": {
