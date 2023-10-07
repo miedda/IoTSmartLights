@@ -16,7 +16,9 @@ const port = process.env.SERVER_PORT;
 app.use(express.json());
 app.use(cors());
 
+console.log(`Connecting to db ${process.env.MONGO_CONNECTION_STRING}`);
 await mongoose.connect(process.env.MONGO_CONNECTION_STRING);
+console.log("Connected to db");
 
 process.on('exit', async function (){
     console.log('Closing db connection');
