@@ -4,6 +4,8 @@ import express from 'express';
 import Light from './light.js';
 import Switch from './switch.js';
 import fetch from 'node-fetch';
+import {validate} from 'jsonschema';
+import { BuildingSchema } from '../schema/building.js';
 
 // Define server interface
 const serverAddress = process.env.SERVER_ADDRESS;
@@ -15,27 +17,26 @@ const buildingRequest = {
     address: "1 street st, City",
     organisation: "Organisation ltd"
 }
-const building = await updateServer('/building/new', buildingRequest);
-console.log(building._id)
-console.log(building);
-
+const building = await updateServer('/building/new', buildingRequest, BuildingSchema);
 
 // Create lights and switches. In a real system this would be handled by a pairing
 // implemented using COAP discovery features to link devices to the gateway.
-let numEachDevice = 2;
+let numEachDevice = 1;
 let lights = [];
 const lightIP = process.env.LIGHT_ADDRESS;
 const lightStartingPort = parseInt(process.env.LIGHT_PORT);
-// console.log(lightIP, lightStartingPort);
 let switches = [];
 const switchIP = process.env.SWITCH_ADDRESS;
 const switchStartingPort = parseInt(process.env.SWITCH_PORT);
 
 for (let i = 0; i < numEachDevice; i++) {
-    lights.push(new Light({id: i, building: building.id, location:'location', address: lightIP, port: lightStartingPort + i, updateFunc: updateServer}));
-    switches.push(new Switch({id: i, building: building.id, location:'location', address: switchIP, port: switchStartingPort + i, updateFunc: updateServer}));
+    lights.push(new Light({buildingId: building._id, location:'location', address: lightIP, port: lightStartingPort + i, updateFunc: updateServer}));
+    // await lights[i].init()
+    switches.push(new Switch({buildingId: building._id, location:'location', address: switchIP, port: switchStartingPort + i, updateFunc: updateServer}));
     switches[i].linkLight(lights[i]);
 }
+
+// process.exit();
 
 // HTTP API
 const app = express();
@@ -84,21 +85,29 @@ app.post('/off/:id', (req, res) => {
     })
 });
 
-async function updateServer(path, message) {
+async function updateServer(path, message, schema) {
+    console.log("update", path, "with");
+    console.log(message);
+    const url = `http://${serverAddress}:${serverPort}${path}`;
+    const validator = validate(message, schema);
+    if(validator.errors.length != 0){
+        console.log(validator.errors[0]);
+    }
     try{
-        const response = await fetch(`http://${serverAddress}:${serverPort}${path}`, {
+        console.log('try');
+        const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(message)
         });
-    
         
         if(!response.ok) {
             console.log(response.status);
         }
         const doc = await response.json();
+        console.log("doc", doc);
         return doc;
     } catch (error) {
         console.error(error);

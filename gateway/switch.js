@@ -1,21 +1,13 @@
 import 'dotenv/config';
 import coap from 'coap';
 import {debugLog} from '../util.js';
+import { SwitchSchema, SwitchStateSchema } from '../schema/switch.js';
+
 
 export default class Switch {
-    // constructor(id, address, port){
-    //     this.id = id,
-    //     this.address = address,
-    //     this.port = port,
-    //     this.state = false,
-    //     this.linkedLights = [],
-
-    //     this.init();
-    // }
-
-    constructor({id, building, location, address, port, updateFunc}){
-        this.id = id;
-        this.building = building;
+    constructor({buildingId, location, address, port, updateFunc}){
+        this._id = null;
+        this.buildingId = buildingId;
         this.location = location;
         this.address = address;
         this.port = port;
@@ -27,14 +19,17 @@ export default class Switch {
         this.init();
     }
     
-    init(){
+    async init(){
         const msg = {
-            id: this.id,
-            building: this.building,
+            buildingId: this.buildingId,
+            location: this.location,
+            startTime: this.startTime,
             time: Date.now(),
-            location: this.location
         }
-        this.updateFunc('/switch/new', msg);
+
+        const entry = await this.updateFunc('/switch/new', msg, SwitchSchema);
+        this._id = entry._id;
+        console.log(this);
 
         // Subscribe to switch
         const switchObserveRequest = coap.request({
@@ -44,7 +39,7 @@ export default class Switch {
             port: this.port,
         })
         
-        console.log(`Switch ${this.id} linked to ${this.linkedLights.length == 0 ? 'nothing' : this.linkedLights }`);
+        console.log(`Switch ${this._id} linked to ${this.linkedLights.length == 0 ? 'nothing' : this.linkedLights }`);
 
         switchObserveRequest.on('response', (res) => {
             res.on('data', (data) => {
@@ -55,24 +50,22 @@ export default class Switch {
                 this.state = msg.state;
                 if(this.state) {
                     this.linkedLights.forEach(light => {
-                        console.log(`Switch ${this.id} turning on light ${light.id} at ${light.port}`);
+                        console.log(`Switch ${this._id} turning on light ${light._id} at ${light.port}`);
                         light.on();
                     })
                 } else {
                     this.linkedLights.forEach(light => {
-                        console.log(`Switch ${this.id} turning off light ${light.id} at ${light.port}`);
+                        console.log(`Switch ${this._id} turning off light ${light._id} at ${light.port}`);
                         light.off();
                     });
                 }
                 // Update state in server
                 const state = {
-                    id: this.id,
-                    building: this.building,
+                    switchId: this._id,
                     time: Date.now(),
-                    startTime: this.startTime,
                     state: this.state
                 };
-                this.updateFunc('/switch/update', state);
+                this.updateFunc('/switch/update', state, SwitchStateSchema);
             })
         })
         
@@ -80,8 +73,8 @@ export default class Switch {
     }
 
     linkLight(light){
-        console.log(`Switch ${this.id} linked to light ${light.id}`);
         this.linkedLights.push(light);
+        console.log(`Switch ${this._id} linked to light ${this.linkedLights[this.linkedLights.length-1]._id}`);
     }
 
     unlinkLight(lightId){

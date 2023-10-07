@@ -1,11 +1,13 @@
 import 'dotenv/config';
 import coap from 'coap';
 import {debugLog} from '../util.js';
+import {LightSchema, LightStateSchema} from '../schema/light.js';
+
 
 export default class Light {
-    constructor({id, building, location, address, port, updateFunc}){
-        this.id = id;
-        this.building = building;
+    constructor({buildingId, location, address, port, updateFunc}){
+        this._id = null;
+        this.buildingId = buildingId;
         this.location = location;
         this.address = address;
         this.port = port;
@@ -16,18 +18,21 @@ export default class Light {
         this.init();
     }
 
-    init(){
+    async init(){
         const msg = {
-            id: this.id,
-            building: this.building,
+            buildingId: this.buildingId,
+            location: this.location,
+            startTime: this.startTime,
             time: Date.now(),
-            location: this.location
         }
-        this.updateFunc('/light/new', msg);
+
+        const entry = await this.updateFunc('/light/new', msg, LightSchema);
+        this._id = entry._id;
+        console.log(this);
     }
 
-    on(){
-        debugLog(`Turn on light ${this.id}`);
+    async on(){
+        debugLog(`Turn on light ${this._id}`);
         // Send request
         const req = coap.request({hostname: this.address, port: this.port, method: 'post', pathname: '/on'})
         req.on('response', (res) => {
@@ -41,17 +46,16 @@ export default class Light {
 
         // update state in server
         const state = {
-            id: this.id,
-            building: this.building,
+            lightId: this._id,
             time: Date.now(),
-            startTime: this.startTime,
             state: this.state
         }
-        // this.updateFunc('/light/update', state);
+        const entry = await this.updateFunc('/light/update', state, LightStateSchema);
+        console.log(entry)
     }
 
-    off(){
-        debugLog(`Turn off light ${this.id}`);
+    async off(){
+        debugLog(`Turn off light ${this._id}`);
         // Send request
         const req = coap.request({hostname: this.address, port: this.port, method: 'post', pathname: '/off'})
         req.on('response', (res) => {
@@ -65,15 +69,11 @@ export default class Light {
 
         // update state in server
         const state = {
-            id: this.id,
-            building: this.building,
+            lightId: this._id,
             time: Date.now(),
-            startTime: this.startTime,
             state: this.state
         }
-
-        debugLog(state);
-
-        // this.updateFunc('/light/update', state);
+        const entry = await this.updateFunc('/light/update', state, LightStateSchema);
+        console.log(entry)
     }
 }

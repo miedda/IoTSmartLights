@@ -1,8 +1,8 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import {LightSchema, LightStateSchema} from './schema/light.js';
-import {SwitchSchema, SwitchStateSchema} from './schema/switch.js';
-import {BuildingSchema} from './schema/building.js';
+import {LightSchema, LightStateSchema} from '../schema/light.js';
+import {SwitchSchema, SwitchStateSchema} from '../schema/switch.js';
+import {BuildingSchema} from '../schema/building.js';
 import {Building} from './models/building.js';
 import {Switch, SwitchState} from './models/switch.js';
 import {Light, LightState} from './models/light.js';
@@ -59,7 +59,7 @@ app.get('/building', async (req, res) => {
 
 app.post('/building/new', async (req, res) => {
     const msg = validateRequest(req, res, BuildingSchema);
-    console.log(msg);
+    // console.log(msg);
     
     try{
         // Create building object
@@ -79,7 +79,7 @@ app.post('/building/new', async (req, res) => {
         }
     
         // Send result to client
-        console.log(doc);
+        console.log("New Building:\n", doc);
         res.status(200).send(doc);
     } catch (error) {
         console.error(error);
@@ -88,7 +88,7 @@ app.post('/building/new', async (req, res) => {
     }
 })
 
-app.post('/light/new/', async (req, res) => {
+app.post('/light/new', async (req, res) => {
     const msg = validateRequest(req, res, LightSchema);
     console.log(msg);
 
@@ -111,7 +111,7 @@ app.post('/light/new/', async (req, res) => {
         }
 
         // Send result to client
-        console.log(doc);
+        console.log("New Light:\n", doc);
         res.status(200).send(doc);
     } catch (error) {
         console.error(error);
@@ -122,7 +122,7 @@ app.post('/light/new/', async (req, res) => {
 
 app.post('/light/update', async (req, res) => {
     const msg = validateRequest(req, res, LightStateSchema);
-    console.log(msg);
+    // console.log(msg);
 
     try{
         // Create the switch state object to update
@@ -144,7 +144,7 @@ app.post('/light/update', async (req, res) => {
         }
 
         // Send result to client
-        console.log(doc);
+        console.log("New Light State:\n", doc);
         res.status(200).send(doc);
     } catch (error) {
         console.error(error);
@@ -155,7 +155,7 @@ app.post('/light/update', async (req, res) => {
 
 app.post('/switch/new/', async (req, res) => {
     const msg = validateRequest(req, res, SwitchSchema);
-    console.log(msg);
+    // console.log(msg);
 
     try {
         // Create the switch object
@@ -176,7 +176,7 @@ app.post('/switch/new/', async (req, res) => {
         }
 
         // Send result to client
-        console.log(doc);
+        console.log("New Switch:\n", doc);
         res.status(200).send(doc);
     } catch (error) {
         console.error(error);
@@ -187,7 +187,7 @@ app.post('/switch/new/', async (req, res) => {
 
 app.post('/switch/update', async (req, res) => {
     const msg = validateRequest(req, res, SwitchStateSchema);
-    console.log(msg);
+    // console.log(msg);
     
     try{
         // Create the switch state object to update
@@ -209,7 +209,7 @@ app.post('/switch/update', async (req, res) => {
         }
 
         // Send result to client
-        console.log(doc);
+        console.log("New Switch State:\n", doc);
         res.status(200).send(doc);
     } catch (error) {
         console.error(error);
